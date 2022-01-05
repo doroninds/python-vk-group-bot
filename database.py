@@ -60,12 +60,22 @@ class DataMapper(object):
             commands.append(f'\n[{row[0]}] {row[1]} - {row[2]}')
         return ''.join(commands)
 
-    def get_guide(row: list):
-        guide = ''
-        if (row[3]):
-            guide= row[3]
 
-        return guide
+    @staticmethod
+    def get_text(row: list):
+        text = ''
+        if (row[2]):
+            text= row[2]
+
+        return text
+
+    @staticmethod
+    def get_attachment(row: list):
+        attachment = ''
+        if (row[3]):
+            attachment= row[3]
+
+        return attachment
 
     @staticmethod
     def mapping_by_action_type(action_type, data):
@@ -79,22 +89,68 @@ class DataMapper(object):
         if (action_type == ActionType.GUIDE.value):
             
             if (data):
-                guide = DataMapper.get_guide(data)
-                mapper.update(data = guide)
-                mapper.update(type = 'attachment')
+                attachment = DataMapper.get_attachment(data)
+                text = DataMapper.get_text(data)
+                
+                mapper.update(type = 'message')
+                mapper.update(data = text)
+                
+                if (attachment):
+                    mapper.update(data = attachment)
+                    mapper.update(type = 'attachment')
             else:
                 mapper.update(data = 'Гайд не найден')
                 mapper.update(type = 'message')
             return mapper
 
         if (action_type == ActionType.LEVELING.value):
-            
+            print('LEVELING data', data)
             if (data):
-                guide = DataMapper.get_guide(data)
-                mapper.update(data = guide)
-                mapper.update(type = 'attachment')
+                attachment = DataMapper.get_attachment(data)
+                text = DataMapper.get_text(data)
+                
+                mapper.update(type = 'message')
+                mapper.update(data = text)
+                
+                if (attachment):
+                    mapper.update(data = attachment)
+                    mapper.update(type = 'attachment')
             else:
                 mapper.update(data = 'Гайд не найден')
+                mapper.update(type = 'message')
+            return mapper
+
+        if (action_type == ActionType.FARMING.value):
+            if (data):
+                attachment = DataMapper.get_attachment(data)
+                text = DataMapper.get_text(data)
+
+                mapper.update(type = 'message')
+                mapper.update(data = text)
+
+                if (attachment):
+                    mapper.update(data = attachment)
+                    mapper.update(type = 'attachment')
+            else:
+                mapper.update(data = 'День недели введен не корректно!')
+                mapper.update(type = 'message')
+                
+            return mapper
+
+        if (action_type == ActionType.FARMING_TODAY.value):
+            print('FARMING_TODAY', data)
+            if (data):
+                attachment = DataMapper.get_attachment(data)
+                text = DataMapper.get_text(data)
+                
+                mapper.update(type = 'message')
+                mapper.update(data = text)
+                
+                if (attachment):
+                    mapper.update(data = attachment)
+                    mapper.update(type = 'attachment')
+            else:
+                mapper.update(data = 'День недели введен не корректно!')
                 mapper.update(type = 'message')
             return mapper
 

@@ -12,3 +12,4 @@ class ActionType(Enum):
     BAR = 7  # ссылка на другую группу
     ALERT = 8  # ЧС
     WORKSHEET = 9  # анкета
+    FARMING_TODAY = 10  # что можно фармить
