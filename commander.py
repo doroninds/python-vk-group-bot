@@ -70,6 +70,10 @@ class Commander:
             task.update(vk_api = 'send_message')
             task.update(message = config.in_developing)
 
+        if (action_type == ActionType.CHECK.value):
+            task.update(vk_api = 'send_message')
+            task.update(message = config.check_message)
+            
         return task
 
 

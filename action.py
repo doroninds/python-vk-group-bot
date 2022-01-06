@@ -13,3 +13,4 @@ class ActionType(Enum):
     ALERT = 8  # ЧС
     WORKSHEET = 9  # анкета
     FARMING_TODAY = 10  # что можно фармить
+    CHECK = 11  # проверка бота

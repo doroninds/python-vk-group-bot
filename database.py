@@ -27,13 +27,13 @@ class Datasource:
 
     def get_content(self, content_key: str, action_type: int):
         print('content_key', content_key, 'action_type', action_type)
-        sql = f'select key, action_type, text, attachment from contents where action_type = {action_type} and key = \'{content_key}\''
+        sql = f'select key, action_type, text, attachment from contents where action_type = {action_type} and key = \'{content_key.lower()}\''
         row = self.__db.query(sql, is_one=True)
         print('get_content row', row)
         return row
 
     def get_action_type_by_command(self, command_name: str) -> str:
-        sql = f'select action_type from commands where name = "{command_name}"'
+        sql = f'SELECT action_type FROM commands WHERE name = "{command_name}"'
         row = self.__db.query(sql, is_one=True)
         if (row):
             return row[0]
