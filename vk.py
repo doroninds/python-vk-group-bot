@@ -13,10 +13,10 @@ class VkBotExtension:
 
       if (message):
         obj['message'] = message
+        
       if (attachment):
         obj['attachment'] = attachment
 
-      print('send_message obj', obj)
       self.__vk.method('messages.send', obj)
 
 class BotEvent:

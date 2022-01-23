@@ -11,6 +11,7 @@ class ActionType(Enum):
     FARMING = 6  # что можно фармить
     BAR = 7  # ссылка на другую группу
     ALERT = 8  # ЧС
-    WORKSHEET = 9  # анкета
+    CREATE_WORKSHEET = 9  # создание анкеты
     FARMING_TODAY = 10  # что можно фармить
     CHECK = 11  # проверка бота
+    WORKSHEET = 12  # анкета

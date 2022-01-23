@@ -1,4 +1,6 @@
+from action import ActionType
 from commander import Commander
+import traceback
 import config
 import vk_api
 from database import DataMapper, Datasource, Db
@@ -30,37 +32,56 @@ class App:
   def process_task(self, task, peer_id):
       message = None
       attachment = None
+
       if (task['message']):
           message = task['message']
 
       if (task['datasource']):
         data = self.__datasource.query_by_task(task)
-        mapper = DataMapper.mapping_by_action_type(task['action_type'], data)
-        print('mapper', mapper)
 
-        if (mapper['type'] == 'attachment'):
+        mapper = DataMapper.mapping_by_action_type(task, data)
+  
+        if (mapper and mapper['type'] == 'attachment'):
           attachment = mapper['data']
 
-        if (mapper['type'] == 'message'):
+        if (mapper and mapper['type'] == 'message'):
           message = mapper['data']
 
       if (task['vk_api']):
-        print('message', message)
-        print('attachment', attachment)
-        self.__vk_api.send_message(peer_id, message, attachment)
+        if (task['vk_api'] == 'send_message'):
+          self.__vk_api.send_message(peer_id, message, attachment)
 
 app = App(vk_api, datasource)
 # Слушаем longpoll(Сообщения)
 for event in botLongpoll.listen():
-    bot_event = BotEvent(event)
-    if(event.message.text == ''):
-      continue
-    if bot_event.type == VkBotEventType.MESSAGE_NEW:
-      commander = Commander(bot_event.text)
-      action_type = datasource.get_action_type_by_command(commander.cmd())
-      if (action_type and action_type > 0):
-            peer_id = bot_event.peer_id
-            task = commander.get_task_by_action(action_type)
-            app.process_task(task, peer_id)
+    print('event', event)
+    try:
 
+      bot_event = BotEvent(event)
+
+      if(event.message.text == ''):
+        continue
+
+      if(event.message.text[0] != '!'):
+        continue
+
+      if bot_event.type == VkBotEventType.MESSAGE_NEW:
+
+        from_id = event.message.from_id
+        reply_from_id = None
+        if (event.message.reply_message and event.message.reply_message['from_id']):
+           reply_from_id = event.message.reply_message['from_id']
+
+        commander = Commander(bot_event.text, from_id, reply_from_id)
+        action_type = datasource.get_action_type_by_command(commander.cmd())
+
+        # Если тип события существует - формируем задачу
+      if (action_type and action_type > 0):
+          task = commander.get_task_by_action(action_type)
+          app.process_task(task, bot_event.peer_id)
+    except Exception:
+      traceback.print_exc()
+      bot_event = BotEvent(event)
+      obj = { 'peer_id': bot_event.peer_id, 'random_id': 0, 'message': config.expection_error_message }
+      vk.method('messages.send', obj)
            

@@ -17,3 +17,7 @@ about_developer='По вопросам работы бота пишите @dimas
 bar_link='https://vk.me/join/AJQ1d9Se0R263uYDouudedMO'
 
 check_message='на месте'
+
+create_worksheet_message='Анкета успешно создана!'
+
+expection_error_message='Я умер ( По вопросам работы бота пишите @dimas_kaskader91'
