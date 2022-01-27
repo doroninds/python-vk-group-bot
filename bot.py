@@ -16,7 +16,7 @@ vk = vk_api.VkApi(token=config.token)
 session = vk.get_api()
 
 # инициализация longpoll бота
-botLongpoll = VkBotLongPoll(vk=vk, group_id=config.group_id)
+botLongpoll = VkBotLongPoll(vk=vk, group_id=config.group_id, wait=20)
 
 
 # Инициализации БД и DataSource
@@ -53,35 +53,27 @@ class App:
 
 app = App(vk_api, datasource)
 # Слушаем longpoll(Сообщения)
+
 for event in botLongpoll.listen():
-    print('event', event)
+    message = BotEvent(event)
     try:
-
-      bot_event = BotEvent(event)
-
+     
       if(event.message.text == ''):
         continue
-
       if(event.message.text[0] != '!'):
         continue
 
-      if bot_event.type == VkBotEventType.MESSAGE_NEW:
+      if message.type == VkBotEventType.MESSAGE_NEW:
 
-        from_id = event.message.from_id
-        reply_from_id = None
-        if (event.message.reply_message and event.message.reply_message['from_id']):
-           reply_from_id = event.message.reply_message['from_id']
-
-        commander = Commander(bot_event.text, from_id, reply_from_id)
+        commander = Commander(message.text, message.from_id, message.reply_from_id)
         action_type = datasource.get_action_type_by_command(commander.cmd())
 
         # Если тип события существует - формируем задачу
-      if (action_type and action_type > 0):
-          task = commander.get_task_by_action(action_type)
-          app.process_task(task, bot_event.peer_id)
+        if (action_type and action_type > 0):
+            task = commander.get_task_by_action(action_type)
+            app.process_task(task, message.peer_id)
+          
     except Exception:
       traceback.print_exc()
-      bot_event = BotEvent(event)
-      obj = { 'peer_id': bot_event.peer_id, 'random_id': 0, 'message': config.expection_error_message }
+      obj = { 'peer_id': message.peer_id, 'random_id': 0, 'message': config.expection_error_message }
       vk.method('messages.send', obj)
-           

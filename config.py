@@ -1,5 +1,6 @@
 # БД
-database='/mnt/c/home/dima/data/genshin-bot/db.sqite'
+# database='/mnt/c/home/dima/data/genshin-bot/db.sqite'
+database='db.sqlite'
 
 # VK Api token
 token='8ac370b190710b5dc2e9703903f1c07bb807ff7b94e1715ebd1beb228746e7476ab54a5dc635dbba166df'
@@ -20,4 +21,6 @@ check_message='на месте'
 
 create_worksheet_message='Анкета успешно создана!'
 
-expection_error_message='Я умер ( По вопросам работы бота пишите @dimas_kaskader91'
+expection_error_message='Произошла ошибка при выполнении команды. @dimas_kaskader91'
+
+expection_timeout_message='Превышено время ожидания запроса. @dimas_kaskader91'
