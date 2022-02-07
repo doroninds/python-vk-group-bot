@@ -1,0 +1,3 @@
+### Commands
+GET http://localhost:5000/commands
+Content-Type: application/json

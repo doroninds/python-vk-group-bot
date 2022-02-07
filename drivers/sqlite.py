@@ -3,7 +3,7 @@ from sqlite3 import Connection
 import settings
 
 # Инициализируем соединение с sqlite
-sqlite_connection = sqlite3.connect(settings.DATABASE)
+sqlite_connection = sqlite3.connect(settings.DATABASE, check_same_thread=False)
 
 class SqliteDatasource:
 

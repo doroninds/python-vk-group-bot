@@ -1,15 +1,21 @@
 CREATE TABLE IF NOT EXISTS commands (
+    id INT AUTOINCREMENT,
     name STRING PRIMARY KEY,
     action_type TINYINT NOT NULL,
-    help STRING
+    help STRING,
+    admin_only BOOLEAN NOT NULL DEFAULT false,
+    text STRING,
+    attachment STRING,
+    custom_key STRING
 );
 
 CREATE TABLE IF NOT EXISTS contents (
     key STRING,
+    command_id INT NOT NULL DEFAULT 0,
     text STRING,
     attachment STRING,
-    created_at datetime,
-    updated_at datetime
+    created_at datetime DEFAULT CURRENT_TIMESTAMP,
+    updated_at datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS admins (
@@ -19,10 +25,3 @@ CREATE TABLE IF NOT EXISTS admins (
     updated_at datetime
 );
 
-
-ALTER TABLE commands ADD admin_only BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE commands ADD text STRING;
-ALTER TABLE commands ADD attachment STRING;
-ALTER TABLE commands ADD id INT;
-ALTER TABLE contents ADD command_id INT NOT NULL DEFAULT 0;
-ALTER TABLE commands ADD custom_key STRING;
