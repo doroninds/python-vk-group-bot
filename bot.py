@@ -16,9 +16,6 @@ class MyVkLongPoll(VkBotLongPoll):
                     yield event
             except Exception as e:
                 print('error', e)
-                bot_messanger.send_message(
-                    settings.DEFAULT_PEER_ID, settings.ALERT_MESSAGE)
-
 
 # инициализация vk api
 vk = vk_api.VkApi(token=settings.VK_API_TOKEN)

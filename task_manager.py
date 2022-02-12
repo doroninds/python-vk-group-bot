@@ -24,8 +24,8 @@ class TaskManager:
             command = command_datasource.findbypk(commander.cmd)
 
             if (command == None):
-                self.__bot_messanger.send_message(
-                    commander.peer_id, 'Команда не найдена или отключена (')
+                print('Команда не найдена или отключена (')
+                return
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
                 text = command.get('text')
@@ -59,7 +59,7 @@ class TaskManager:
                     {'field': 'command_id', 'value': command.get('id')})
 
             if (command.get('action_type') == 0):
-                self.__bot_messanger.send_message(
-                    commander.peer_id, 'Команда не найдена или отключена (')
-
+                print('Команда не найдена или отключена (')
+                return
+                
         self.__bot_messanger.send_message(commander.peer_id, text, attachment)
