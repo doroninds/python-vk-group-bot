@@ -7,8 +7,7 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from library.vk import VkBotMessanger
 from task_manager import TaskManager
 
-
-class MyVkLongPoll(VkBotLongPoll):
+class BotLongPoll(VkBotLongPoll):
     def listen(self):
         while True:
             try:
@@ -22,7 +21,7 @@ vk = vk_api.VkApi(token=settings.VK_API_TOKEN)
 session = vk.get_api()
 
 # инициализация longpoll бота
-botLongpoll = MyVkLongPoll(vk=vk, group_id=settings.VK_BOT_GROUP_ID)
+botLongpoll = BotLongPoll(vk=vk, group_id=settings.VK_BOT_GROUP_ID)
 
 bot_messanger = VkBotMessanger(vk)
 task_manager = TaskManager(bot_messanger)

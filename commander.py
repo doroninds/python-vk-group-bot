@@ -5,13 +5,6 @@ from vk_api.bot_longpoll import VkBotMessageEvent
 class Commander:
     def __init__(self, message_event: VkBotMessageEvent) -> None:
         self.__event = message_event
-        # self.__bot_messsager = bot_messsager
-        # self.__reply_from_id = bot_messsage.reply_from_id
-        # self.__args = bot_messsage.text.split()
-        # self.__cmd = self.__args[0]
-        # self.__content_key = " ".join(self.__args[1:])
-        # self.__segments = bot_messsage.text.split("\n")
-        # self.__payload = "\n".join(self.__segments[1:])
 
     @property
     def peer_id(self) -> int:
