@@ -40,6 +40,18 @@ class SqliteDatasource:
         
         self.__connection.commit()
 
+    def update(self, table_name, where_options, update_options):
+        cursor = self.__connection.cursor()
+        self.__clear()
+        self.__query += f'UPDATE {table_name}'
+        self.__set(update_options)
+        self.__where(where_options)
+        sql = self.__get()
+        self.__clear()
+        cursor.execute(sql)
+        self.__connection.commit()
+        
+
     def __query_builder(self, table_name, fields, where_options = None, sort: list = None):
         sql = self.__select(table_name, fields).__where(where_options).__order_by(sort).__get()
         return sql
@@ -59,6 +71,22 @@ class SqliteDatasource:
 
     def __get(self):
         return self.__query
+
+    def __clear(self):
+         self.__query = ''
+
+    def __set(self, set_options: list):
+        self.__query += f' SET'
+        for i, set_option in enumerate(set_options):
+            next_option = ','
+            is_last = set_options.__len__() == i + 1
+
+            if (is_last):
+                next_option = ''
+
+            self.__query += f" {set_option.get('field')} = \"{set_option.get('value')}\" {next_option}"
+      
+        return self
 
     def __where(self, where_options: list = None):
         

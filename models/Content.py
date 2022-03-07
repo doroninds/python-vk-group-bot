@@ -24,3 +24,9 @@ class ContentModel(Base):
         data.append('CURRENT_TIMESTAMP')
         print('fields', fields)
         self.create(fields, data)
+
+    def update_content(self, where_options, update):
+
+        print('update', update)
+ 
+        self.update(where_options, update)

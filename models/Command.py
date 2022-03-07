@@ -5,12 +5,12 @@ from models.Base import Base
 
 class CommandModel(Base):
 
-    ACTION_TYPES = { 'get_command': 1, 'find_commands': 2, 'get_content': 3, 'find_contents': 4, 'create_content': 5 }
+    ACTION_TYPES = {'get_command': 1, 'find_commands': 2,
+                    'get_content': 3, 'find_contents': 4, 'create_content': 5, 'update_content': 6 }
 
-    def __init__(self, table_name = 'commands', p_key = 'name') -> None:
+    def __init__(self, table_name='commands', p_key='name') -> None:
         Base.__init__(self, table_name, p_key)
 
-    
     def find_commands(self):
         commands = self.findall()
         text = ''
@@ -21,7 +21,7 @@ class CommandModel(Base):
     def get_custom_key(self, command, commander: Commander):
 
         if (command.get('custom_key')):
-            
+
             if (command.get('custom_key') == 'current_day_of_week'):
                 key = current_week_of_day()
                 return key

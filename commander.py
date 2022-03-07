@@ -39,6 +39,10 @@ class Commander:
         return self.__event.message.text[len(self.cmd):]
 
     @property
+    def line_args(self):
+        return self.__event.message.text.split('\n')
+
+    @property
     def value(self):
         return " ".join(self.args[1:])
 

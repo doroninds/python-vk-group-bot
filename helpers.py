@@ -18,3 +18,9 @@ def week_day(num: int) -> str:
 def current_week_of_day():
     week_day_num = datetime.datetime.today().weekday()
     return week_day(week_day_num)
+
+def list_get(list, i):
+    try:
+        return list[i]
+    except IndexError:
+        return None

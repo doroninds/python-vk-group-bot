@@ -20,3 +20,7 @@ class Base(SqliteDatasource):
     def create(self, fields, data):
         print('SqliteDatasource', self.__table_name, fields, data)
         return SqliteDatasource.insert(self, self.__table_name, fields, data)
+
+    def update(self, where_options, update_options):
+        print('SqliteDatasource', self.__table_name, where_options, update_options)
+        return SqliteDatasource.update(self, self.__table_name, where_options, update_options)
