@@ -17,7 +17,6 @@ class Commander:
     @property
     def from_reply_id(self) -> int:
       id = self.from_id
-      print('self.__event.message', self.__event.message)
       if (self.__event.message.get('reply_message') and self.__event.message['reply_message']['from_id']):
           id = self.__event.message['reply_message']['from_id']
       return id

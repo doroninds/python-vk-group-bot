@@ -6,7 +6,7 @@ from models.Base import Base
 class CommandModel(Base):
 
     ACTION_TYPES = {'get_command': 1, 'find_commands': 2,
-                    'get_content': 3, 'find_contents': 4, 'create_content': 5, 'update_content': 6 }
+                    'get_content': 3, 'find_contents': 4, 'add_content': 5, 'update_content': 6, 'user_warn': 7 }
 
     def __init__(self, table_name='commands', p_key='name') -> None:
         Base.__init__(self, table_name, p_key)

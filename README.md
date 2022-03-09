@@ -1,1 +1,1 @@
-# python-vk-group-bot
+# python-vk-bot

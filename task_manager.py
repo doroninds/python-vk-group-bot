@@ -27,7 +27,6 @@ class TaskManager:
             command = command_datasource.findbypk(commander.cmd)
 
             if (command == None):
-                print('Команда не найдена или отключена (')
                 return
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
@@ -49,13 +48,50 @@ class TaskManager:
                     text = command.get('text')
                     attachment = command.get('attachment')
 
-            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_content')):
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('add_content')):
                 key = commander.from_id
                 command_id = command.get('bind_id') or command.get('id')
                 content_datasource.create_or_update_content(['key', 'text', 'command_id'], [
                                                             f"'{key}'", f"'{commander.data}'", f"'{command_id}'"])
                 text = command.get('text')
                 attachment = command.get('attachment')
+
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_content')):
+                user = user_datasource.findbypk(commander.from_id)
+
+   
+         
+                if (command.get('admin_only') == True and user == None or user.get('is_admin') != True):
+                    text = command.get('text')
+                else:
+                    try: 
+                        upd_command = command_datasource.findbypk(commander.line_args[1].strip())
+                        content_key = commander.line_args[2].strip()
+                        content_text = None
+                        content_attachment = None
+
+                        if (list_get(commander.line_args, 4)):
+                            content_text = list_get(commander.line_args, 4).strip()
+
+                        if (list_get(commander.line_args, 3)):
+                            content_attachment = list_get(commander.line_args, 3).strip()
+
+                        update_options = []
+                        if (content_text):
+                            update_options.append({ 'field': 'text', 'value':  content_text })
+
+                        if (content_attachment):
+                            update_options.append({'field':  'attachment', 'value': content_attachment})
+
+
+                        where_options = [{ 'field': 'command_id', 'value': upd_command.get('id')}, { 'field': 'key', 'value': content_key}]
+
+                   
+                        content_datasource.update(where_options, update_options)
+                        text = command.get('success')
+                    except:
+                        traceback.print_exc()
+                        text = command.get('fail')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('update_content')):
                 user = user_datasource.findbypk(commander.from_id)
@@ -79,13 +115,12 @@ class TaskManager:
 
                         update_options = []
 
-                        # if (content_text):
-                        #     update_options.append({ 'field': 'text', 'value':  content_text })
+                        if (content_text):
+                            update_options.append({ 'field': 'text', 'value':  content_text })
 
                         if (content_attachment):
                             update_options.append({'field':  'attachment', 'value': content_attachment})
 
-                        print('update_options', update_options)
                         where_options = [{ 'field': 'command_id', 'value': upd_command.get('id')}, { 'field': 'key', 'value': content_key}]
 
                    
@@ -100,8 +135,11 @@ class TaskManager:
                 text = content_datasource.find_contents(
                     {'field': 'command_id', 'value': command.get('id')})
 
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('user_warn')):
+                text = content_datasource.find_contents(
+                    {'field': 'command_id', 'value': command.get('id')})
+
             if (command.get('action_type') == 0):
-                print('Команда не найдена или отключена (')
                 return
                 
         self.__bot_messanger.send_message(commander.peer_id, text, attachment)

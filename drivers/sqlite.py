@@ -40,14 +40,25 @@ class SqliteDatasource:
         
         self.__connection.commit()
 
+    def delete(self, table_name, fields, data):
+        cursor = self.__connection.cursor()
+        columns = ', '.join(fields)
+        values = ', '.join(data)
+        sql = f'INSERT INTO {table_name} ({columns}) VALUES ({values})'
+        cursor.execute(sql)
+        
+        self.__connection.commit()
     def update(self, table_name, where_options, update_options):
         cursor = self.__connection.cursor()
+
+        # empty sql statement
         self.__clear()
         self.__query += f'UPDATE {table_name}'
         self.__set(update_options)
         self.__where(where_options)
         sql = self.__get()
         self.__clear()
+
         cursor.execute(sql)
         self.__connection.commit()
         

@@ -1,7 +1,7 @@
 from commander import Commander
-import traceback
 import settings
 import vk_api
+
 # Импортируем методы longpoll бота
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from library.vk import VkBotMessanger
@@ -14,11 +14,10 @@ class BotLongPoll(VkBotLongPoll):
                 for event in self.check():
                     yield event
             except Exception as e:
-                print('error', e)
+                print('[Exception] BotLongPoll.listen', e)
 
 # инициализация vk api
 vk = vk_api.VkApi(token=settings.VK_API_TOKEN)
-session = vk.get_api()
 
 # инициализация longpoll бота
 botLongpoll = BotLongPoll(vk=vk, group_id=settings.VK_BOT_GROUP_ID)
@@ -30,16 +29,11 @@ task_manager = TaskManager(bot_messanger)
 # Слушаем longpoll(Сообщения)
 for event in botLongpoll.listen():
     try:
-            if(event.message.text == ''):
+            if(event.message.text == '' or event.message.text[0] != '!'):
                 continue
-
-            if(event.message.text[0] != '!'):
-                continue
-
-            print('event', event)
 
             if event.type == VkBotEventType.MESSAGE_NEW:
                 commander = Commander(event)
                 task_manager.process_command(commander)
-    except Exception:
-            traceback.print_exc()
+    except Exception as e:
+        print('[Exception] event listen', e)

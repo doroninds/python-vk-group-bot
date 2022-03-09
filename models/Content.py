@@ -17,16 +17,11 @@ class ContentModel(Base):
         return text
 
     def create_or_update_content(self, fields, data):
-        print('fields', fields)
         fields.append('created_at')
         fields.append('updated_at')
         data.append('CURRENT_TIMESTAMP')
         data.append('CURRENT_TIMESTAMP')
-        print('fields', fields)
         self.create(fields, data)
 
-    def update_content(self, where_options, update):
-
-        print('update', update)
- 
+    def update_content(self, where_options, update): 
         self.update(where_options, update)
