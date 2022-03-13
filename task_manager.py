@@ -5,14 +5,16 @@ from library.vk import VkBotMessanger
 from models.Command import CommandModel
 from models.Content import ContentModel
 from models.User import UserModel
+from models.Warning import WarningModel
 from helpers import list_get
 import traceback
+
 
 # models
 command_datasource = CommandModel()
 content_datasource = ContentModel()
 user_datasource = UserModel()
-
+WarningDataSource = WarningModel()
 
 class TaskManager:
     def __init__(self, bot_messanger: VkBotMessanger) -> None:
@@ -135,9 +137,25 @@ class TaskManager:
                 text = content_datasource.find_contents(
                     {'field': 'command_id', 'value': command.get('id')})
 
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_warn')):
+                reason = f"'{commander.value}'"
+                user_id = command_datasource.get_custom_key(command, commander)
+             
+                data = WarningDataSource.create_warn(user_id, reason)
+                text = command.get('text')
+
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('user_warn')):
                 text = content_datasource.find_contents(
                     {'field': 'command_id', 'value': command.get('id')})
+
+                user_id = command_datasource.get_custom_key(command, commander)
+                print('user_id', user_id)
+                data = WarningDataSource.find_user_warn(user_id)
+                print('data', data)
+                if (data):
+                    text = data
+                else:
+                    text = command.get('text')
 
             if (command.get('action_type') == 0):
                 return

@@ -25,3 +25,12 @@ CREATE TABLE "users" (
     group_id INTEGER,
     is_admin BOOLEAN NOT NULL DEFAULT false
 );
+
+CREATE TABLE "warnings" (
+    user_id INTEGER NOT NULL,
+    group_id INTEGER,
+    reason STRING,
+    created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expired_at datetime
+);
