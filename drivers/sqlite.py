@@ -42,6 +42,11 @@ class SqliteDatasource:
         
         self.__connection.commit()
 
+    def query(self, sql):
+        cursor = self.__connection.cursor()
+        cursor.execute(sql)
+        self.__connection.commit()
+
     def delete(self, table_name, fields, data):
         cursor = self.__connection.cursor()
         columns = ', '.join(fields)

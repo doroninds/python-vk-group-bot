@@ -21,9 +21,15 @@ class TaskManager:
         self.__bot_messanger = bot_messanger
 
     def process_command(self, commander: Commander):
-
+        
         text = None
         attachment = None
+        is_user_admin = False
+
+        user = user_datasource.findbypk(commander.from_id)
+
+        if (user != None and user.get('is_admin') == True):
+            is_user_admin = True
 
         if (commander.is_command):
             command = command_datasource.findbypk(commander.cmd)
@@ -59,11 +65,8 @@ class TaskManager:
                 attachment = command.get('attachment')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_content')):
-                user = user_datasource.findbypk(commander.from_id)
-
-   
-         
-                if (command.get('admin_only') == True and user == None or user.get('is_admin') != True):
+  
+                if (is_user_admin == False):
                     text = command.get('text')
                 else:
                     try: 
@@ -138,11 +141,24 @@ class TaskManager:
                     {'field': 'command_id', 'value': command.get('id')})
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_warn')):
-                reason = f"'{commander.value}'"
-                user_id = command_datasource.get_custom_key(command, commander)
-             
-                data = WarningDataSource.create_warn(user_id, reason)
-                text = command.get('text')
+                if (is_user_admin == False):
+                    text = command.get('text')
+                else:
+                    reason = f"'{commander.value}'"
+                    user_id = command_datasource.get_custom_key(command, commander)
+                
+                    data = WarningDataSource.create_warn(user_id, reason)
+                    text = command.get('success')
+
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('delete_warn')):
+                if (is_user_admin == False):
+                    text = command.get('text')
+                else:
+
+                    user_id = command_datasource.get_custom_key(command, commander)
+                
+                    data = WarningDataSource.delete_warn(user_id)
+                    text = command.get('success')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('user_warn')):
                 text = content_datasource.find_contents(

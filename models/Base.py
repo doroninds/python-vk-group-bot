@@ -22,3 +22,6 @@ class Base(SqliteDatasource):
 
     def update(self, where_options, update_options):
         return SqliteDatasource.update(self, self.__table_name, where_options, update_options)
+
+    def query(self, sql):
+        return SqliteDatasource.query(self, sql)
