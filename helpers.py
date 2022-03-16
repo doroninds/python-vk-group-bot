@@ -1,7 +1,4 @@
 import datetime
-datetime.datetime.today()
-datetime.datetime(2012, 3, 23, 23, 24, 55, 173504)
-
 
 def day_of_week(week_day: str) -> int:
     week = {'понедельник': 0, 'вторник': 1, 'среда': 2,
@@ -15,7 +12,7 @@ def week_day(num: int) -> str:
     return days[num]
 
 
-def current_week_of_day():
+def current_week_day():
     week_day_num = datetime.datetime.today().weekday()
     return week_day(week_day_num)
 

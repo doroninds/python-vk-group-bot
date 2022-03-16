@@ -165,9 +165,7 @@ class TaskManager:
                     {'field': 'command_id', 'value': command.get('id')})
 
                 user_id = command_datasource.get_custom_key(command, commander)
-                print('user_id', user_id)
                 data = WarningDataSource.find_user_warn(user_id)
-                print('data', data)
                 if (data):
                     text = data
                 else:

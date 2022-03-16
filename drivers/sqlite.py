@@ -21,7 +21,6 @@ class SqliteDatasource:
     def fetchall(self, table_name, fields, where_options = None, sort: list = None):
         cursor = self.__connection.cursor()
         sql = self.__query_builder(table_name, fields, where_options, sort)
-        print('sql', sql)
         cursor.execute(sql)
         return cursor.fetchall()
     
@@ -37,7 +36,6 @@ class SqliteDatasource:
         columns = ', '.join(fields)
         values = ', '.join(data)
         sql = f'INSERT INTO {table_name} ({columns}) VALUES ({values})'
-        print('sql', sql)
         cursor.execute(sql)
         
         self.__connection.commit()
@@ -55,6 +53,7 @@ class SqliteDatasource:
         cursor.execute(sql)
         
         self.__connection.commit()
+
     def update(self, table_name, where_options, update_options):
         cursor = self.__connection.cursor()
 

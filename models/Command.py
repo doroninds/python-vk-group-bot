@@ -1,5 +1,5 @@
 from commander import Commander
-from helpers import current_week_of_day
+import helpers
 from models.Base import Base
 
 
@@ -23,7 +23,7 @@ class CommandModel(Base):
         if (command.get('custom_key')):
 
             if (command.get('custom_key') == 'current_day_of_week'):
-                key = current_week_of_day()
+                key = helpers.current_week_day()
                 return key
 
             if (command.get('custom_key') == 'from_reply_id'):
