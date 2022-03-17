@@ -11,6 +11,10 @@ class Commander:
       return self.__event.message.peer_id
 
     @property
+    def group_id(self) -> int:
+      return self.__event.client_info.group_id
+
+    @property
     def from_id(self) -> int:
       return self.__event.message.from_id
 

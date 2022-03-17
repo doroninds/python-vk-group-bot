@@ -2,6 +2,7 @@
 
 from commander import Commander
 from library.vk import VkBotMessanger
+from models.Ban import BanModel
 from models.Command import CommandModel
 from models.Content import ContentModel
 from models.User import UserModel
@@ -15,6 +16,7 @@ command_datasource = CommandModel()
 content_datasource = ContentModel()
 user_datasource = UserModel()
 WarningDataSource = WarningModel()
+BanDataSource = BanModel()
 
 class TaskManager:
     def __init__(self, bot_messanger: VkBotMessanger) -> None:
@@ -28,7 +30,7 @@ class TaskManager:
 
         user = user_datasource.findbypk(commander.from_id)
 
-        if (user != None and user.get('is_admin') == True):
+        if (user != None and user.get('level') > 0):
             is_user_admin = True
 
         if (commander.is_command):
@@ -46,7 +48,7 @@ class TaskManager:
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('get_content')):
                 key = command_datasource.get_custom_key(
-                    command, commander) or commander.value
+                    command, commander) or commander.value or commander.cmd
                 content = content_datasource.find_by_command_id(
                     key, command.get('id'))
                 if (content):
@@ -103,33 +105,46 @@ class TaskManager:
 
    
          
-                if (command.get('admin_only') == True and user == None or user.get('is_admin') != True):
+                if (command.get('admin_only') == True and user == None or user.get('level') == 0):
                     text = command.get('text')
                 else:
-                    try: 
-                        upd_command = command_datasource.findbypk(commander.line_args[1].strip())
-                        content_key = commander.line_args[2].strip()
-                        content_text = None
-                        content_attachment = None
-                 
-                        if (list_get(commander.line_args, 4)):
-                            content_text = list_get(commander.line_args, 4).strip()
-
-                        if (list_get(commander.line_args, 3)):
-                            content_attachment = list_get(commander.line_args, 3).strip()
-
+                    try:
+                        update_field = list_get(commander.line_args, 0).strip().split(' ')[1]
+                        
+                        content_options = list_get(commander.line_args, 1).strip()
+                       
+                        content_cmd = content_options.split(' ')[0]
+                        update_command = command_datasource.findbypk(content_cmd)
+                      
+                        content_key =  content_options[len(content_cmd):].strip() or content_cmd
+                        print('content_key', content_key)
+                        update_text = None
+                        update_attachment = None
                         update_options = []
 
-                        if (content_text):
-                            update_options.append({ 'field': 'text', 'value':  content_text })
+                        if (update_field == 'text' or update_field == 'текст'):
+                            update_text = list_get(commander.line_args, 2).strip()
+                            update_options.append({ 'field': 'text', 'value': update_text })
 
-                        if (content_attachment):
-                            update_options.append({'field':  'attachment', 'value': content_attachment})
+                        if (update_field == 'attachment' or update_field == 'вложение'):
+                            update_attachment = list_get(commander.line_args, 2).strip()
+                            update_options.append({'field':  'attachment', 'value': update_attachment})
+                        
 
-                        where_options = [{ 'field': 'command_id', 'value': upd_command.get('id')}, { 'field': 'key', 'value': content_key}]
+                    
+                        where_options = [{ 'field': 'command_id', 'value': update_command.get('id')}, { 'field': 'key', 'value': content_key}]
 
-                   
-                        content_datasource.update(where_options, update_options)
+                        print('where_options', where_options)
+                        print('update_options', update_options)
+
+                
+                        if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
+                            print('jere')
+                            command_datasource.update([{ 'field': 'id', 'value': update_command.get('id')}], update_options)
+
+                        if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_content')):
+                            content_datasource.update(where_options, update_options)
+
                         text = command.get('success')
                     except:
                         traceback.print_exc()
@@ -149,6 +164,24 @@ class TaskManager:
                 
                     data = WarningDataSource.create_warn(user_id, reason)
                     text = command.get('success')
+
+            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_ban')):
+                if (is_user_admin == False):
+                    text = command.get('text')
+                else:
+                    reason = f"'{commander.value}'"
+                    user_id = command_datasource.get_custom_key(command, commander)
+                    data = BanDataSource.create_ban(user_id, reason)
+                    try:
+                        self.__bot_messanger.ban(commander.peer_id, user_id)
+                        text = command.get('success')
+                        attachment = command.get('attachment')
+                    except Exception as e:
+                        text = command.get('fail')
+                        
+            
+                 
+                    
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('delete_warn')):
                 if (is_user_admin == False):

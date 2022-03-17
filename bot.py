@@ -4,6 +4,7 @@ import vk_api
 
 # Импортируем методы longpoll бота
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+from vk_api.longpoll import VkLongPoll
 from library.vk import VkBotMessanger
 from task_manager import TaskManager
 
@@ -26,13 +27,16 @@ bot_messanger = VkBotMessanger(vk)
 task_manager = TaskManager(bot_messanger)
 
 
+bot_messanger.chat_members(2000000006)
 # Слушаем longpoll(Сообщения)
 for event in botLongpoll.listen():
     try:
+            
             if(event.message.text == '' or event.message.text[0] != '!'):
                 continue
 
             if event.type == VkBotEventType.MESSAGE_NEW:
+            
                 commander = Commander(event)
                 task_manager.process_command(commander)
     except Exception as e:

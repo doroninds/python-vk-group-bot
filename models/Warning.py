@@ -1,4 +1,4 @@
-from dataclasses import field
+from datetime import datetime
 from datetime import datetime
 from models.Base import Base
 import time
@@ -15,7 +15,7 @@ class WarningModel(Base):
 
     def create_warn(self, user_id, reason):
         Base.create(self, ['user_id', 'reason', 'expired_at'], [
-                    f"'{user_id}'", reason, f"'{int(time.time() + self.__expired_by)}'"])
+                    f"'{user_id}'", reason, f"'{self.__default_expiredat()}'"])
 
     def delete_warn(self, user_id):
         sql = f"DELETE FROM {self.__table_name} WHERE user_id = {user_id} and created_at = (SELECT max(created_at) FROM {self.__table_name} WHERE user_id = {user_id});"
@@ -23,20 +23,20 @@ class WarningModel(Base):
 
     def __default_expiredat(self):
         tmp = int(time.time() + self.__expired_by)
-        date =  datetime.fromtimestamp(tmp)
+        date =  datetime.utcfromtimestamp(tmp)
         return f'{date}'
 
     def __current_datetime(self):
         tmp = int(time.time())
-        date =  datetime.fromtimestamp(tmp)
+        date =  datetime.utcfromtimestamp(tmp)
         return f'{date}'
 
     def find_user_warn(self, user_id):
   
-        warns = Base.findall(self, [{'field': 'user_id', 'value': user_id }, { 'field': 'expired_at', 'operator': '>', 'value': int(time.time())}])
+        warns = Base.findall(self, [{'field': 'user_id', 'value': user_id }, { 'field': 'expired_at', 'operator': '>', 'value': f"{self.__current_datetime()}"}])
         text = ''
         i = 1
         for warn in warns:
-            text += f"#{i}\nПричина: {warn.get('reason')}\nДата: {warn.get('created_at')}\nИстекает: {datetime.fromtimestamp(warn.get('expired_at'))}\n"
+            text += f"Предупреждение #{i}\nПричина: {warn.get('reason')}\nДата: {warn.get('created_at')} GMT+0\nИстекает: {warn.get('expired_at')} GMT+0\n"
             i += 1
         return text
