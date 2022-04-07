@@ -23,7 +23,13 @@ class SqliteDatasource:
         sql = self.__query_builder(table_name, fields, where_options, sort)
         cursor.execute(sql)
         return cursor.fetchall()
-    
+
+    def count(self, table_name, fields, where_options = None, sort: list = None):
+        cursor = self.__connection.cursor()
+        sql = self.__query_builder(table_name, fields, where_options, sort)
+        cursor.execute(sql)
+        return cursor.fetchall()
+
     def __dict_factory(self, cursor, row):
         d = {}
         for idx, col in enumerate(cursor.description):
@@ -67,11 +73,18 @@ class SqliteDatasource:
 
         cursor.execute(sql)
         self.__connection.commit()
-        
+
+    def count(self, table_name, fields, where_options = None, sort: list = None):
+        sql = self.__select_count(table_name, fields).__where(where_options).__get()
+        return sql
 
     def __query_builder(self, table_name, fields, where_options = None, sort: list = None):
         sql = self.__select(table_name, fields).__where(where_options).__order_by(sort).__get()
         return sql
+
+    def __select_count(self, table_name, fields = '*'):
+        self.__query = f'SELECT COUNT(*) FROM {table_name} as t'
+        return self
 
     def __select(self, table_name, fields = '*'):
         self.__query = f'SELECT * FROM {table_name} as t'

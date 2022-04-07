@@ -14,6 +14,9 @@ class Base(SqliteDatasource):
     def findone(self, where_options = None, sort = None):
         return SqliteDatasource.fetchone(self, self.__table_name, None, where_options, sort)
 
+    def count(self, where_options = None, sort = None):
+        return SqliteDatasource.count(self, self.__table_name, None, where_options, sort)
+
     def findall(self, where_options = None, sort = None):
         return SqliteDatasource.fetchall(self, self.__table_name, None, where_options, sort)
 
