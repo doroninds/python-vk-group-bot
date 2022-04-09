@@ -26,9 +26,8 @@ class VkBotMessanger:
     
     def chat_members(self, peer_id) -> None:
         try:
-            data = {'peer_id': peer_id }
-            data = self.__vk_api.method('messages.getConversationMembers', data)
-            print('data', data)
+            data = self.__vk_api.method('messages.getConversationMembers', {'peer_id': peer_id })
+            return data
         
         except Exception as e:
             print('[Exception] VkBotMessanger.send_message', e)

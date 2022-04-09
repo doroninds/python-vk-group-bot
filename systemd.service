@@ -1,0 +1,9 @@
+[Unit]
+Description=Python VK Bot
+After=multi-user.target
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /home/dima/Projects/vk-bot/bot.py
+[Install]
+WantedBy=multi-user.target
