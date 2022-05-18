@@ -11,10 +11,6 @@ class Commander:
       return self.__event.message.peer_id
 
     @property
-    def group_id(self) -> int:
-      return self.__event.client_info.group_id
-
-    @property
     def from_id(self) -> int:
       return self.__event.message.from_id
 
@@ -51,4 +47,30 @@ class Commander:
 
     @property
     def is_command(self) -> str:
-      return self.cmd[0] == '!'
+      if (not self.__event.message.text):
+        return False
+
+      if (self.__event.message.text[0] != '!'):
+        return False
+
+      return True
+
+    @property
+    def text(self) -> str:
+      return self.__event.message.text
+
+    @property
+    def attachments(self) -> str:
+      return self.__event.message.attachments
+
+    @property
+    def conversation_message_id(self) -> int:
+      return self.__event.message.conversation_message_id
+
+    @property
+    def group_id(self) -> int:
+      return self.__event.group_id
+
+    @property
+    def message_id(self) -> int:
+      return self.__event.message.id

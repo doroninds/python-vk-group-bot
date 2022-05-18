@@ -7,7 +7,7 @@ class ContentModel(Base):
         Base.__init__(self, 'contents', 'key')
 
     def find_by_command_id(self, p_key, command_id):
-        return self.findone([{ 'field': 'key', 'value': p_key}, { 'field': 'command_id', 'value': command_id}], ['created_at', 'DESC'])
+        return self.findone([{ 'field': 'key', 'value': p_key.lower()}, { 'field': 'command_id', 'value': command_id}], ['created_at', 'DESC'])
 
     def find_contents(self, where_options):
         contents = self.findall(where_options)

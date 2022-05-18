@@ -28,10 +28,11 @@ task_manager = TaskManager(bot_messanger)
 # Слушаем longpoll(Сообщения)
 for event in botLongpoll.listen():
     try:
-            if(event.message.text == '' or event.message.text[0] != '!'):
-                continue
             if event.type == VkBotEventType.MESSAGE_NEW:
                 commander = Commander(event)
-                task_manager.process_command(commander)
+                if (commander.is_command):
+                    task_manager.process_command(commander)
+                else:
+                    task_manager.check_text(commander)
     except Exception as e:
         print('[Exception] event listen', e)

@@ -23,6 +23,9 @@ class VkBotMessanger:
         data = {'chat_id': chat_id, 'user_id': user_id }
         self.__vk_api.method('messages.removeChatUser', data)
 
+    def delete_message(self, group_id, peer_id, messages_ids, cmids) -> None:
+        data = { 'group_id': group_id, 'delete_for_all': 1, 'peer_id': peer_id, 'cmids': cmids   }
+        self.__vk_api.method('messages.delete', data)
     
     def chat_members(self, peer_id) -> None:
         try:

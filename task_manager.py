@@ -22,6 +22,23 @@ class TaskManager:
     def __init__(self, bot_messanger: VkBotMessanger) -> None:
         self.__bot_messanger = bot_messanger
 
+    def check_text(self, commander: Commander) -> None:
+ 
+        isHyperLink = False
+        
+        for attachment in commander.attachments:
+             if (attachment['type'] == 'link'):
+                 isHyperLink = True
+
+        if (commander.text):
+            if (commander.text.find('http://') != -1 or commander.text.find('https://') != -1):
+                isHyperLink = True
+
+        if (isHyperLink):
+            self.__bot_messanger.send_message(commander.peer_id, 'Ссылки запрещены. Пока прощай')
+            self.__bot_messanger.ban(commander.peer_id, commander.from_id)
+            self.__bot_messanger.delete_message(commander.group_id, commander.peer_id, f'{commander.message_id}', f'{commander.conversation_message_id}')
+
     def process_command(self, commander: Commander):
         
         text = None
