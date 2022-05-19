@@ -25,6 +25,7 @@ botLongpoll = LongPoll(vk=vk, group_id=settings.VK_BOT_GROUP_ID)
 bot_messanger = VkBotMessanger(vk)
 task_manager = TaskManager(bot_messanger)
 
+print('Bot started')
 # Слушаем longpoll(Сообщения)
 for event in botLongpoll.listen():
     try:
