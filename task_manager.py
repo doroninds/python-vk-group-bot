@@ -44,11 +44,17 @@ class TaskManager:
         text = None
         attachment = None
         is_user_admin = False
+        is_user_editor = False
+        is_user_moderator = False
 
         user = user_datasource.findbypk(commander.from_id)
 
-        if (user != None and user.get('level') > 0):
+        if (user != None and user.get('level') == 4):
             is_user_admin = True
+
+        if (user != None):
+            is_user_editor = user.get('editor')
+            is_user_moderator = user.get('moderator')
 
         if (commander.is_command):
             command = command_datasource.findbypk(commander.cmd)
@@ -84,8 +90,7 @@ class TaskManager:
                 attachment = command.get('attachment')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_content')):
-  
-                if (is_user_admin == False):
+                if (is_user_editor == False):
                     text = command.get('text')
                 else:
                     try: 
@@ -118,29 +123,24 @@ class TaskManager:
                         text = command.get('fail')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('update_content')):
-                user = user_datasource.findbypk(commander.from_id)
-
-   
-         
-                if (command.get('admin_only') == True and user == None or user.get('level') == 0):
+                if (is_user_editor == False):
                     text = command.get('text')
                 else:
                     try:
                         update_field = list_get(commander.line_args, 0).strip().split(' ')[1]
-                        
                         content_options = list_get(commander.line_args, 1).strip()
                        
                         content_cmd = content_options.split(' ')[0]
                         update_command = command_datasource.findbypk(content_cmd)
                       
                         content_key =  content_options[len(content_cmd):].strip() or content_cmd
-                        print('content_key', content_key)
                         update_text = None
                         update_attachment = None
                         update_options = []
 
                         if (update_field == 'text' or update_field == 'текст'):
-                            update_text = list_get(commander.line_args, 2).strip()
+                            
+                            update_text = '\n'.join(commander.line_args[2:]).strip()
                             update_options.append({ 'field': 'text', 'value': update_text })
 
                         if (update_field == 'attachment' or update_field == 'вложение'):
@@ -173,7 +173,7 @@ class TaskManager:
                     {'field': 'command_id', 'value': command.get('id')})
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_warn')):
-                if (is_user_admin == False):
+                if (is_user_moderator == False):
                     text = command.get('text')
                 else:
                     reason = f"'{commander.value}'"
@@ -183,7 +183,7 @@ class TaskManager:
                     text = command.get('success')
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('create_ban')):
-                if (is_user_admin == False):
+                if (is_user_moderator == False):
                     text = command.get('text')
                 else:
                     reason = f"'{commander.value}'"
@@ -201,7 +201,7 @@ class TaskManager:
                     
 
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('delete_warn')):
-                if (is_user_admin == False):
+                if (is_user_moderator == False):
                     text = command.get('text')
                 else:
 

@@ -1,3 +1,8 @@
 ### Commands
 GET http://localhost:5000/commands
 Content-Type: application/json
+
+
+### Users
+GET http://localhost:5000/users
+Content-Type: application/json

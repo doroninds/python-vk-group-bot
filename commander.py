@@ -31,7 +31,11 @@ class Commander:
 
     @property
     def cmd(self) -> str:
-        return self.args[0].lower()
+        if (self.args[0]):
+          return str(self.args[0]).lower()
+        else:
+          return ''
+       
 
     @property
     def data(self):
