@@ -34,6 +34,6 @@ for event in botLongpoll.listen():
                 if (commander.is_command):
                     task_manager.process_command(commander)
                 else:
-                    task_manager.check_text(commander)
+                    task_manager.process_text(commander)
     except Exception as e:
         print('[Exception] event listen', e)

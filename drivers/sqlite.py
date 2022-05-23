@@ -50,6 +50,7 @@ class SqliteDatasource:
         cursor = self.__connection.cursor()
         cursor.execute(sql)
         self.__connection.commit()
+        return cursor.fetchall()
 
     def delete(self, table_name, fields, data):
         cursor = self.__connection.cursor()

@@ -1,4 +1,3 @@
-from logging import exception
 from vk_api import VkApi
 
 
@@ -6,31 +5,37 @@ class VkBotMessanger:
     def __init__(self, vk_api: VkApi) -> None:
         self.__vk_api = vk_api
 
+    def user_info(self, user_id, fields = 'about,screen_name,nickname') -> None:
+        params = {'user_ids': user_id, 'fields': fields }
+        data = self.__vk_api.method('users.get', params)
+        return data[0]
+
     def send_message(self, peer_id, text=None, attachment=None) -> None:
-    
+
         try:
             message = {'peer_id': peer_id, 'random_id': 0,
-                   'message': text, 'attachment': attachment }
+                       'message': text, 'attachment': attachment}
 
             self.__vk_api.method('messages.send', message)
-        
+
         except Exception as e:
             print('[Exception] VkBotMessanger.send_message', e)
 
-    
     def ban(self, peer_id, user_id) -> None:
         chat_id = peer_id - 2000000000
-        data = {'chat_id': chat_id, 'user_id': user_id }
+        data = {'chat_id': chat_id, 'user_id': user_id}
         self.__vk_api.method('messages.removeChatUser', data)
 
     def delete_message(self, group_id, peer_id, messages_ids, cmids) -> None:
-        data = { 'group_id': group_id, 'delete_for_all': 1, 'peer_id': peer_id, 'cmids': cmids   }
+        data = {'group_id': group_id, 'delete_for_all': 1,
+                'peer_id': peer_id, 'cmids': cmids}
         self.__vk_api.method('messages.delete', data)
-    
+
     def chat_members(self, peer_id) -> None:
         try:
-            data = self.__vk_api.method('messages.getConversationMembers', {'peer_id': peer_id })
+            data = self.__vk_api.method(
+                'messages.getConversationMembers', {'peer_id': peer_id})
             return data
-        
+
         except Exception as e:
             print('[Exception] VkBotMessanger.send_message', e)

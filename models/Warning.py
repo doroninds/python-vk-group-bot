@@ -5,13 +5,13 @@ import time
 
 
 class WarningModel(Base):
-    __primary_key = 'user_id'
-    __table_name = 'warnings'
-
     __expired_by = 7 * 24 * 60 * 60  # days * hours * minutes * seconds
 
+    __table_name = 'warnings'
+
     def __init__(self) -> None:
-        Base.__init__(self, self.__table_name, self.__primary_key)
+        Base.__init__(self, table_name=self.__table_name, primary_key='user_id',
+                      schema=None, timestamp=False, sync=False)
 
     def create_warn(self, user_id, reason):
         Base.create(self, ['user_id', 'reason', 'expired_at'], [
@@ -23,17 +23,18 @@ class WarningModel(Base):
 
     def __default_expiredat(self):
         tmp = int(time.time() + self.__expired_by)
-        date =  datetime.utcfromtimestamp(tmp)
+        date = datetime.utcfromtimestamp(tmp)
         return f'{date}'
 
     def __current_datetime(self):
         tmp = int(time.time())
-        date =  datetime.utcfromtimestamp(tmp)
+        date = datetime.utcfromtimestamp(tmp)
         return f'{date}'
 
     def find_user_warn(self, user_id):
-  
-        warns = Base.findall(self, [{'field': 'user_id', 'value': user_id }, { 'field': 'expired_at', 'operator': '>', 'value': f"{self.__current_datetime()}"}])
+
+        warns = Base.findall(self, [{'field': 'user_id', 'value': user_id}, {
+                             'field': 'expired_at', 'operator': '>', 'value': f"{self.__current_datetime()}"}])
         text = ''
         i = 1
         for warn in warns:
