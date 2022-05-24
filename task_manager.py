@@ -1,7 +1,7 @@
 from commander import Commander
 from library.vk import VkBotMessanger
 from models.Ban import BanModel
-from models.Command import CommandModel
+from models.Command import CommandModel, CommandType
 from models.Content import ContentModel
 from models.User import UserModel
 from models.Warning import WarningModel
@@ -19,6 +19,7 @@ BanDataSource = BanModel()
 
 group_users = user_datasource.get_user_ids_map()
 
+
 class TaskManager:
     def __init__(self, bot_messanger: VkBotMessanger) -> None:
         self.__bot_messanger = bot_messanger
@@ -28,16 +29,14 @@ class TaskManager:
         reply_user = None
         user = None
 
-
         exist = self.__group_users.get(commander.from_id)
 
-   
         user_info = self.__bot_messanger.user_info(commander.from_id)
-    
+
         if (not exist):
             user_datasource.createByUserInfo(commander.from_id, user_info)
             self.__group_users = user_datasource.get_user_ids_map()
-            
+
         if (commander.from_reply_id and commander.text == '+'):
 
             if (commander.from_reply_id != commander.from_id):
@@ -276,9 +275,22 @@ class TaskManager:
                 else:
                     text = command.get('text')
 
-            if (command.get('action_type') == command_datasource.ACTION_TYPES.get('profile')):
+            if (command.get('action_type') == CommandType.PROFILE.value):
                 profile = user_datasource.profile(commander.from_id)
                 text = profile
+
+            if (command.get('action_type') == 0):
+                return
+
+            if (command.get('action_type') == CommandType.UPDATE_NICKNAME.value):
+                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], [
+                                       {'field': 'nickname', 'value': commander.value}])
+                text = command.get('success')
+
+            if (command.get('action_type') == CommandType.UPDATE_BIO.value):
+                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], [
+                                       {'field': 'bio', 'value': f'{commander.data}'}])
+                text = command.get('success')
 
             if (command.get('action_type') == 0):
                 return

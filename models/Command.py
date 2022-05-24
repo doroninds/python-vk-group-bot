@@ -1,6 +1,24 @@
+import enum
 from commander import Commander
 import helpers
 from models.Base import Base
+
+
+class CommandType(enum.Enum):
+    UNKNOWN = 0
+    GET_COMMAND = 1
+    FIND_COMMANDS = 2
+    GET_CONTENT = 3
+    FIND_CONTENTS = 4
+    ADD_CONTENT = 5
+    UPDATE_CONTENT = 6
+    USER_WARN = 7
+    CREATE_WARN = 8
+    DELETE_WARN = 9
+    CREATE_BAN = 10
+    PROFILE = 11
+    UPDATE_NICKNAME = 12
+    UPDATE_BIO = 13
 
 
 class CommandModel(Base):

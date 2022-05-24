@@ -45,7 +45,7 @@ class UserModel(Base):
          self.create(['user_id', 'username', 'nickname'], [f'{user_id}', f"'{data.get('screen_name')}'", f"'{data.get('nickname')}'"])
 
     def profile(self, user_id):
-        user = self.findbypk(self, user_id)
+        user = self.findbypk(user_id)
 
         text = f"""
         Это {user.get('nickname') or user.get('user_id')}

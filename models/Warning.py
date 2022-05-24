@@ -13,6 +13,14 @@ class WarningModel(Base):
         Base.__init__(self, table_name=self.__table_name, primary_key='user_id',
                       schema=None, timestamp=False, sync=False)
 
+    def __schema(self):
+        return {
+            'user_id': Base.schema_type(type=int, nullable=False),
+            'group_id': Base.schema_type(int),
+            'reason': Base.schema_type(str),
+            'expired_at': Base.schema_type('DATETIME'),
+        }
+
     def create_warn(self, user_id, reason):
         Base.create(self, ['user_id', 'reason', 'expired_at'], [
                     f"'{user_id}'", reason, f"'{self.__default_expiredat()}'"])
