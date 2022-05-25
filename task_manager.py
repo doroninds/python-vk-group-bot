@@ -3,6 +3,7 @@ from library.vk import VkBotMessanger
 from models.Ban import BanModel
 from models.Command import CommandModel, CommandType
 from models.Content import ContentModel
+from models.Reward import RewardModel
 from models.User import UserModel
 from models.Warning import WarningModel
 from helpers import list_get
@@ -15,7 +16,7 @@ content_datasource = ContentModel()
 user_datasource = UserModel()
 WarningDataSource = WarningModel()
 BanDataSource = BanModel()
-
+reward_datasource = RewardModel()
 
 group_users = user_datasource.get_user_ids_map()
 
@@ -276,21 +277,46 @@ class TaskManager:
                     text = command.get('text')
 
             if (command.get('action_type') == CommandType.PROFILE.value):
-                profile = user_datasource.profile(commander.from_id)
-                text = profile
-
+                user_id = commander.from_reply_id or commander.from_id
+                user = user_datasource.findbypk(user_id)
+ 
+                text = command.get('template') % user
+               
             if (command.get('action_type') == 0):
                 return
 
             if (command.get('action_type') == CommandType.UPDATE_NICKNAME.value):
-                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], [
-                                       {'field': 'nickname', 'value': commander.value}])
+                user_datasource.update_nickname(commander.from_id, commander.value)
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.UPDATE_BIO.value):
                 user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], [
                                        {'field': 'bio', 'value': f'{commander.data}'}])
                 text = command.get('success')
+
+            if (command.get('action_type') == CommandType.ADD_REWARD.value):
+                user_id = commander.args[1].split('|')[0][3:]
+                reward_name = ' '.join(commander.args[2:])
+                reward_datasource.add_reward(user_id, reward_name)
+               
+                text = command.get('success')
+
+            if (command.get('action_type') == CommandType.REMOVE_REWARD.value):
+                user_id = commander.args[1].split('|')[0][3:]
+                reward_name = ' '.join(commander.args[2:])
+                reward_datasource.remove_reward(user_id, reward_name)
+               
+                text = command.get('success')
+
+            if (command.get('action_type') == CommandType.REWARDS.value):
+                user_id = commander.from_reply_id or commander.from_id
+                user = user_datasource.findbypk(user_id)
+                rewards = reward_datasource.user_rewards(user_id, user.get('nickname'))
+
+                if (rewards):
+                    text = rewards
+                else:
+                    text = command.get('text') 
 
             if (command.get('action_type') == 0):
                 return

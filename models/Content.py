@@ -5,7 +5,16 @@ class ContentModel(Base):
 
     def __init__(self) -> None:
         Base.__init__(self, table_name='contents', primary_key='key',
-                      schema=None, timestamp=False, sync=False)
+                      schema=self.__schema(), timestamp=True, sync=True)
+
+    def __schema(self):
+
+        return {
+            'key': Base.schema_type(type=str, nullable=False),
+            'text': Base.schema_type(str),
+            'attachment': Base.schema_type(str),
+            'command_id': Base.schema_type(int, nullable=False, default_value='0'),
+        }
 
     def find_by_command_id(self, p_key, command_id):
         return self.findone([{'field': 'key', 'value': f'{p_key}'.lower()}, {'field': 'command_id', 'value': command_id}], ['created_at', 'DESC'])

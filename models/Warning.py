@@ -11,7 +11,7 @@ class WarningModel(Base):
 
     def __init__(self) -> None:
         Base.__init__(self, table_name=self.__table_name, primary_key='user_id',
-                      schema=None, timestamp=False, sync=False)
+                      schema=self.__schema(), timestamp=True, sync=True)
 
     def __schema(self):
         return {

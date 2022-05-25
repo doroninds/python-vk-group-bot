@@ -31,7 +31,6 @@ class UserModel(Base):
         SQL = f'UPDATE {self.__table_name} SET reputation = reputation - 1 WHERE user_id = {user_id}'
         Base.query(self, SQL)
 
-
     def get_user_ids_map(self):
         rows = self.findall()
 
@@ -40,27 +39,12 @@ class UserModel(Base):
             map[row.get('user_id')] = row
 
         return map
-    
+
     def createByUserInfo(self, user_id, data):
-         self.create(['user_id', 'username', 'nickname'], [f'{user_id}', f"'{data.get('screen_name')}'", f"'{data.get('nickname')}'"])
+        self.create(['user_id', 'username', 'nickname'], [
+                    f'{user_id}', f"'{data.get('screen_name')}'", f"'{data.get('nickname')}'"])
 
-    def profile(self, user_id):
+    def update_nickname(self, user_id, nickname):
         user = self.findbypk(user_id)
-
-        text = f"""
-        Это {user.get('nickname') or user.get('user_id')}
-Должность: {user.get('role')}
-В отношениях с [ник] (время отношений)
-
-Репутация: ✨{user.get('reputation')}
-Первое появление: {user.get('created_at')} (сколько времени прошло)
-
-О СЕБЕ:
-{user.get('bio')}
-
-НАГРАДЫ:
-🎗 [награда]
-🎗 [награда] 
-        """
-
-        return text
+        social_nickname = f"[id{user.get('user_id')}|{nickname}]"
+        self.update([{'field': 'user_id', 'value': user_id }], [{'field': 'nickname', 'value': social_nickname }])

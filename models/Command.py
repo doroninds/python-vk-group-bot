@@ -19,7 +19,9 @@ class CommandType(enum.Enum):
     PROFILE = 11
     UPDATE_NICKNAME = 12
     UPDATE_BIO = 13
-
+    ADD_REWARD = 14
+    REMOVE_REWARD = 15
+    REWARDS = 16
 
 class CommandModel(Base):
 
@@ -28,7 +30,27 @@ class CommandModel(Base):
 
     def __init__(self) -> None:
         Base.__init__(self, table_name='commands', primary_key='name',
-                      schema=None, timestamp=False, sync=False)
+                      schema=self.__schema(), timestamp=True, sync=True)
+
+    def __schema(self):
+
+        return {
+            'id': Base.schema_type(type=int, nullable=False),
+            'name': Base.schema_type(str, nullable=False, primary_key=True),
+            'action_type': Base.schema_type(int),
+            'help': Base.schema_type(str),
+            'admin_only':  Base.schema_type(bool, nullable=False, default_value='0'),
+            'text': Base.schema_type(str),
+            'attachment': Base.schema_type(str),
+            'custom_key': Base.schema_type(str),
+            'bind_id': Base.schema_type(int),
+            'success': Base.schema_type(str),
+            'fail': Base.schema_type(str),
+            'sort': Base.schema_type(int, nullable=False, default_value='0'),
+            'icon': Base.schema_type(str),
+            'template': Base.schema_type(str),
+            'alias': Base.schema_type(str),
+        }
 
     def find_commands(self):
         commands = self.findall(None, ['sort', 'ASC'])
