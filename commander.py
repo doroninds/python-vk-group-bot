@@ -22,9 +22,16 @@ class Commander:
 
     @property
     def from_reply_id(self) -> int:
-        id = self.from_id
+        id = None
         if (self.__event.message.get('reply_message') and self.__event.message['reply_message']['from_id']):
             id = self.__event.message['reply_message']['from_id']
+        return id
+
+    @property
+    def from_reply_or_from_id(self) -> int:
+        id = self.from_id
+        if (self.from_reply_id):
+            id = self.from_reply_id
         return id
 
     @property
@@ -74,6 +81,17 @@ class Commander:
     @property
     def attachments(self) -> str:
         return self.__event.message.attachments
+
+    @property
+    def get_photo_link(self) -> str:
+        if (len(self.attachments)):
+            attachment = self.attachments[0]
+            if (attachment['type'] == 'photo'):
+                photo = attachment['photo']
+                link = f"photo{photo['owner_id']}_{photo['id']}_{photo['access_key']}"
+                return link
+        return None
+   
 
     @property
     def conversation_message_id(self) -> int:

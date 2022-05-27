@@ -19,8 +19,10 @@ class UserModel(Base):
             'role': Base.schema_type(str),
             'nickname': Base.schema_type(str),
             'bio': Base.schema_type(str),
+            'photo': Base.schema_type(str),
             'birthday': Base.schema_type(str),
             'reputation': Base.schema_type(type=int, default_value=0),
+            'last_message': Base.schema_type('DATETIME'),
         }
 
     def add_reputation(self, user_id):

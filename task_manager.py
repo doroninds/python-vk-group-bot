@@ -132,8 +132,9 @@ class TaskManager:
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('add_content')):
                 key = commander.from_id
                 command_id = command.get('bind_id') or command.get('id')
-                content_datasource.create_or_update_content(['key', 'text', 'command_id'], [
-                                                            f"'{key}'", f"'{commander.data}'", f"'{command_id}'"])
+                attachment = commander.get_photo_link or ''
+                content_datasource.create_or_update_content(['key', 'text', 'command_id', 'attachment'], [
+                                                            f"'{key}'", f"'{commander.data}'", f"'{command_id}'", f"'{attachment}'"])
                 text = command.get('text')
                 attachment = command.get('attachment')
 
@@ -277,9 +278,7 @@ class TaskManager:
                     text = command.get('text')
 
             if (command.get('action_type') == CommandType.PROFILE.value):
-                user_id = commander.from_reply_id or commander.from_id
-                user = user_datasource.findbypk(user_id)
- 
+                user = user_datasource.findbypk(commander.from_reply_or_from_id)
                 text = command.get('template') % user
                
             if (command.get('action_type') == 0):
@@ -290,8 +289,12 @@ class TaskManager:
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.UPDATE_BIO.value):
-                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], [
-                                       {'field': 'bio', 'value': f'{commander.data}'}])
+                update_options = []
+
+                if (commander.data):
+                    update_options.append({'field': 'bio', 'value': f'{commander.data}'})
+
+                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], update_options)
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.ADD_REWARD.value):
@@ -309,7 +312,7 @@ class TaskManager:
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.REWARDS.value):
-                user_id = commander.from_reply_id or commander.from_id
+                user_id = commander.from_reply_or_from_id
                 user = user_datasource.findbypk(user_id)
                 rewards = reward_datasource.user_rewards(user_id, user.get('nickname'))
 

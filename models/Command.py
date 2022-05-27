@@ -68,7 +68,7 @@ class CommandModel(Base):
                 return key
 
             if (command.get('custom_key') == 'from_reply_id'):
-                key = commander.from_reply_id
+                key = commander.from_reply_or_from_id
                 return key
 
         return None
