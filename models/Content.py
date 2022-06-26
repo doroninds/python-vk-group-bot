@@ -26,12 +26,27 @@ class ContentModel(Base):
             text += f"{content.get('key')} - {content.get('text')}\n"
         return text
 
-    def create_or_update_content(self, fields, data):
+    def create(self, fields, data):
         fields.append('created_at')
         fields.append('updated_at')
         data.append('CURRENT_TIMESTAMP')
         data.append('CURRENT_TIMESTAMP')
+        print('fields', fields, 'data', data)
+        Base.create(self, fields, data)
+
+    def create_from_key(self, key, command_id, text, attachment):
+        fields = ['key', 'command_id']
+        data = [f"'{key}'", f"'{command_id}'"]
+
+        if (text):
+            fields.append('text')
+            data.append(f"'{text}'")
+        if (attachment):
+            fields.append('attachment')
+            data.append(f"'{attachment}'")
+
         self.create(fields, data)
+
 
     def update_content(self, where_options, update):
         self.update(where_options, update)

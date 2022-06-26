@@ -42,6 +42,7 @@ class SqliteDatasource:
         columns = ', '.join(fields)
         values = ', '.join(data)
         sql = f'INSERT INTO {table_name} ({columns}) VALUES ({values})'
+        print('sql', sql)
         cursor.execute(sql)
         
         self.__connection.commit()

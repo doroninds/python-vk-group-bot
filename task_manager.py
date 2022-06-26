@@ -8,7 +8,7 @@ from models.User import UserModel
 from models.Warning import WarningModel
 from helpers import list_get
 import traceback
-
+import datetime
 
 # models
 command_datasource = CommandModel()
@@ -132,9 +132,12 @@ class TaskManager:
             if (command.get('action_type') == command_datasource.ACTION_TYPES.get('add_content')):
                 key = commander.from_id
                 command_id = command.get('bind_id') or command.get('id')
-                attachment = commander.get_photo_link or ''
-                content_datasource.create_or_update_content(['key', 'text', 'command_id', 'attachment'], [
-                                                            f"'{key}'", f"'{commander.data}'", f"'{command_id}'", f"'{attachment}'"])
+
+     
+                attachment = commander.get_photos_links or ''
+                print('attachment', attachment)
+                self.create_or_update_content(key, command_id, commander.data, attachment)
+
                 text = command.get('text')
                 attachment = command.get('attachment')
 
@@ -181,44 +184,34 @@ class TaskManager:
                     text = command.get('text')
                 else:
                     try:
-                        update_field = list_get(
-                            commander.line_args, 0).strip().split(' ')[1]
-                        content_options = list_get(
+                        update_string = list_get(
                             commander.line_args, 1).strip()
+                        print('update_string', update_string)
 
-                        content_cmd = content_options.split(' ')[0]
-                        update_command = command_datasource.findbypk(
-                            content_cmd)
+                        cmd = update_string.split(' ')[0]
+                        print('cmd', cmd)
 
-                        content_key = content_options[len(
-                            content_cmd):].strip() or content_cmd
-                        update_text = None
-                        update_attachment = None
+                        text = commander.data[len(update_string)+2:]
+                        print('text', text)
+
+                        attachment = commander.get_photo_link
+                        print('attachment', attachment)
+
+                        update_command = command_datasource.findbypk(cmd)
+
+                        print('update_command', update_command)
+
+                        content_key = update_string[len(cmd):].strip() or cmd
+                        print('content_key', content_key)
+
+                        
                         update_options = []
-
-                        if (update_field == 'text' or update_field == 'текст'):
-
-                            update_text = '\n'.join(
-                                commander.line_args[2:]).strip()
-                            update_options.append(
-                                {'field': 'text', 'value': update_text})
-
-                        if (update_field == 'attachment' or update_field == 'вложение'):
-                            update_attachment = list_get(
-                                commander.line_args, 2).strip()
-                            update_options.append(
-                                {'field':  'attachment', 'value': update_attachment})
-
-                        where_options = [{'field': 'command_id', 'value': update_command.get('id')}, {
-                            'field': 'key', 'value': content_key}]
-
+ 
                         if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
-                            command_datasource.update(
-                                [{'field': 'id', 'value': update_command.get('id')}], update_options)
+                            self.update_command(update_command.get('id'), text, attachment)
 
                         if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_content')):
-                            content_datasource.update(
-                                where_options, update_options)
+                            self.create_or_update_content(content_key, update_command.get('id'), text, attachment)
 
                         text = command.get('success')
                     except:
@@ -278,48 +271,53 @@ class TaskManager:
                     text = command.get('text')
 
             if (command.get('action_type') == CommandType.PROFILE.value):
-                user = user_datasource.findbypk(commander.from_reply_or_from_id)
+                user = user_datasource.findbypk(
+                    commander.from_reply_or_from_id)
                 text = command.get('template') % user
-               
+
             if (command.get('action_type') == 0):
                 return
 
             if (command.get('action_type') == CommandType.UPDATE_NICKNAME.value):
-                user_datasource.update_nickname(commander.from_id, commander.value)
+                user_datasource.update_nickname(
+                    commander.from_id, commander.value)
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.UPDATE_BIO.value):
                 update_options = []
 
                 if (commander.data):
-                    update_options.append({'field': 'bio', 'value': f'{commander.data}'})
+                    update_options.append(
+                        {'field': 'bio', 'value': f'{commander.data}'})
 
-                user_datasource.update([{'field': 'user_id', 'value': commander.from_id}], update_options)
+                user_datasource.update(
+                    [{'field': 'user_id', 'value': commander.from_id}], update_options)
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.ADD_REWARD.value):
                 user_id = commander.args[1].split('|')[0][3:]
                 reward_name = ' '.join(commander.args[2:])
                 reward_datasource.add_reward(user_id, reward_name)
-               
+
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.REMOVE_REWARD.value):
                 user_id = commander.args[1].split('|')[0][3:]
                 reward_name = ' '.join(commander.args[2:])
                 reward_datasource.remove_reward(user_id, reward_name)
-               
+
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.REWARDS.value):
                 user_id = commander.from_reply_or_from_id
                 user = user_datasource.findbypk(user_id)
-                rewards = reward_datasource.user_rewards(user_id, user.get('nickname'))
+                rewards = reward_datasource.user_rewards(
+                    user_id, user.get('nickname'))
 
                 if (rewards):
                     text = rewards
                 else:
-                    text = command.get('text') 
+                    text = command.get('text')
 
             if (command.get('action_type') == 0):
                 return
@@ -329,3 +327,31 @@ class TaskManager:
                 commander.peer_id, text, attachment)
         else:
             print('[WARNING] Attempt to send empty text or attachment')
+
+    def create_or_update_content(self, key, command_id, text, attachment) -> None:
+    
+        exist = content_datasource.find_by_command_id(key, command_id)
+     
+        if (exist):
+            where_options = [{'field': 'key', 'value': key }, {'field': 'command_id', 'value': command_id }]
+            update_options = [{'field': 'updated_at', 'value': f'{datetime.datetime.now()}'.split('.')[0]}]
+
+            if (text):
+                update_options.append({'field': 'text', 'value': text })
+            if (attachment):
+                update_options.append({'field': 'attachment', 'value': attachment })
+
+            content_datasource.update(where_options, update_options)
+        else: 
+            content_datasource.create_from_key(key, command_id, text, attachment)
+
+    def update_command(self, command_id, text, attachment) -> None:
+        where_options = [{'field': 'id', 'value': command_id }]
+        update_options = []
+
+        if (text):
+            update_options.append({'field': 'text', 'value': text })
+        if (attachment):
+            update_options.append({'field': 'attachment', 'value': attachment })
+        
+        command_datasource.update(where_options, update_options)

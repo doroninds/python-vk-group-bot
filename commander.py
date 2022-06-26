@@ -92,6 +92,17 @@ class Commander:
                 return link
         return None
    
+    @property
+    def get_photos_links(self) -> str:
+        links = ''
+        if (len(self.attachments)):
+
+            for attachment in self.attachments:
+                if (attachment['type'] == 'photo'):
+                    photo = attachment['photo']
+                    link = f"photo{photo['owner_id']}_{photo['id']}_{photo['access_key']}"
+                    links += link + ','
+        return links
 
     @property
     def conversation_message_id(self) -> int:
