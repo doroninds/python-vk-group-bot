@@ -160,14 +160,12 @@ class TaskManager:
                             content_attachment = list_get(
                                 commander.line_args, 3).strip()
 
-                        update_options = []
+                        update_options = {}
                         if (content_text):
-                            update_options.append(
-                                {'field': 'text', 'value':  content_text})
+                            update_options['text'] = content_text
 
                         if (content_attachment):
-                            update_options.append(
-                                {'field':  'attachment', 'value': content_attachment})
+                            update_options['attachment'] = content_attachment
 
                         where_options = [{'field': 'command_id', 'value': upd_command.get('id')}, {
                             'field': 'key', 'value': content_key}]
@@ -205,7 +203,7 @@ class TaskManager:
                         print('content_key', content_key)
 
                         
-                        update_options = []
+                        update_options = {}
  
                         if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
                             self.update_command(update_command.get('id'), text, attachment)
@@ -284,11 +282,10 @@ class TaskManager:
                 text = command.get('success')
 
             if (command.get('action_type') == CommandType.UPDATE_BIO.value):
-                update_options = []
+                update_options = {}
 
                 if (commander.data):
-                    update_options.append(
-                        {'field': 'bio', 'value': f'{commander.data}'})
+                    update_options['bio'] = commander.data
 
                 user_datasource.update(
                     [{'field': 'user_id', 'value': commander.from_id}], update_options)
@@ -334,12 +331,12 @@ class TaskManager:
      
         if (exist):
             where_options = [{'field': 'key', 'value': key }, {'field': 'command_id', 'value': command_id }]
-            update_options = [{'field': 'updated_at', 'value': f'{datetime.datetime.now()}'.split('.')[0]}]
+            update_options = { 'updated_at': f'{datetime.datetime.now()}'.split('.')[0]}
 
             if (text):
-                update_options.append({'field': 'text', 'value': text })
+                update_options['text'] = text
             if (attachment):
-                update_options.append({'field': 'attachment', 'value': attachment })
+                update_options['attachment'] = attachment
 
             content_datasource.update(where_options, update_options)
         else: 
@@ -347,11 +344,11 @@ class TaskManager:
 
     def update_command(self, command_id, text, attachment) -> None:
         where_options = [{'field': 'id', 'value': command_id }]
-        update_options = []
+        update_options = {}
 
         if (text):
-            update_options.append({'field': 'text', 'value': text })
+            update_options['text'] = text
         if (attachment):
-            update_options.append({'field': 'attachment', 'value': attachment })
+            update_options['attachment'] = attachment
         
         command_datasource.update(where_options, update_options)

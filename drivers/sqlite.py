@@ -62,18 +62,18 @@ class SqliteDatasource:
         
         self.__connection.commit()
 
-    def update(self, table_name, where_options, update_options):
+    def update(self, table_name, where_options, update_params):
         cursor = self.__connection.cursor()
 
         # empty sql statement
         self.__clear()
         self.__query += f'UPDATE {table_name}'
-        self.__set(update_options)
+        self.__set(update_params)
         self.__where(where_options)
         sql = self.__get()
         self.__clear()
-
-        cursor.execute(sql)
+        print('sql', sql)
+        cursor.execute(sql, update_params)
         self.__connection.commit()
 
     def count(self, table_name, fields, where_options = None, sort: list = None):
@@ -107,16 +107,19 @@ class SqliteDatasource:
     def __clear(self):
          self.__query = ''
 
-    def __set(self, set_options: list):
+    def __set(self, set_options: dict):
         self.__query += f' SET'
-        for i, set_option in enumerate(set_options):
+        print('set_options', set_options)
+        set_count = len(set_options.items())
+        i = 1
+        for key, value in set_options.items():
             next_option = ','
-            is_last = set_options.__len__() == i + 1
-
-            if (is_last):
+           
+            if (i == set_count):
                 next_option = ''
+            i += 1
 
-            self.__query += f" {set_option.get('field')} = \"{set_option.get('value')}\" {next_option}"
+            self.__query += f" {key} = :{key} {next_option}"
       
         return self
 
