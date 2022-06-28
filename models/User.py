@@ -1,7 +1,13 @@
+from datetime import datetime
+from helpers import current_datetime
 from models.Base import Base
 
 
 class UserModel(Base):
+
+    add_reputation_words = '+ жиза плюс 👍🏻'
+    remove_reputation_words = '- минус осуждаю 👎🏻'
+
     __table_name = 'users'
 
     def __init__(self) -> None:
@@ -22,6 +28,7 @@ class UserModel(Base):
             'photo': Base.schema_type(str),
             'birthday': Base.schema_type(str),
             'reputation': Base.schema_type(type=int, default_value=0),
+            'total_message': Base.schema_type(type=int, default_value=0),
             'last_message': Base.schema_type('DATETIME'),
         }
 
@@ -49,4 +56,26 @@ class UserModel(Base):
     def update_nickname(self, user_id, nickname):
         user = self.findbypk(user_id)
         social_nickname = f"[id{user.get('user_id')}|{nickname}]"
-        self.update([{'field': 'user_id', 'value': user_id }], [{'field': 'nickname', 'value': social_nickname }])
+        self.update([{'field': 'user_id', 'value': user_id }], {'nickname': social_nickname })
+
+
+    def update_user_messages(self, user_id):
+        self.update([{'field': 'user_id', 'value': user_id }], {'last_message': current_datetime()  })
+        SQL = f'UPDATE {self.__table_name} SET total_message = total_message + 1 WHERE user_id = {user_id}'
+        Base.query(self, SQL)
+
+
+    def get_user_stats(self, memberIdx):
+        rows = self.findall(None, ['total_message', 'DESC'])
+
+        text = 'Статистика беседы (кол-во сообщений):\n'
+
+        rowNum = 1
+        for row in rows:
+            if (row.get('user_id') in memberIdx):
+                text += f"{rowNum}. {row.get('nickname') or row.get('username')}: {row.get('total_message')}\n"
+                rowNum += 1
+      
+
+       
+        return text

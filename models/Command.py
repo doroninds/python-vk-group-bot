@@ -22,6 +22,7 @@ class CommandType(enum.Enum):
     ADD_REWARD = 14
     REMOVE_REWARD = 15
     REWARDS = 16
+    USER_STATS = 17
 
 class CommandModel(Base):
 

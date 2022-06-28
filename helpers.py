@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 def day_of_week(week_day: str) -> int:
     week = {'понедельник': 0, 'вторник': 1, 'среда': 2,
@@ -21,3 +21,7 @@ def list_get(list, i):
         return list[i]
     except IndexError:
         return None
+
+
+def current_datetime():
+    return f'{datetime.now()}'.split('.')[0]

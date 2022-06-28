@@ -6,7 +6,7 @@ from models.Content import ContentModel
 from models.Reward import RewardModel
 from models.User import UserModel
 from models.Warning import WarningModel
-from helpers import list_get
+from helpers import current_datetime, list_get
 import traceback
 import datetime
 
@@ -27,8 +27,9 @@ class TaskManager:
         self.__group_users = group_users
 
     def process_text(self, commander: Commander) -> None:
-        reply_user = None
-        user = None
+        
+        # Обновляем время последнего сообщения у пользователя и обновляем счетчик сообщений
+        user_datasource.update_user_messages(commander.from_id)
 
         exist = self.__group_users.get(commander.from_id)
 
@@ -38,7 +39,7 @@ class TaskManager:
             user_datasource.createByUserInfo(commander.from_id, user_info)
             self.__group_users = user_datasource.get_user_ids_map()
 
-        if (commander.from_reply_id and commander.text == '+'):
+        if (commander.from_reply_id and commander.text.lower() in user_datasource.add_reputation_words.split()):
 
             if (commander.from_reply_id != commander.from_id):
                 user_datasource.add_reputation(commander.from_reply_id)
@@ -48,7 +49,7 @@ class TaskManager:
                 self.__bot_messanger.send_message(
                     commander.peer_id, 'Нельзя повышать себе репутацию!')
 
-        if (commander.from_reply_id and commander.text == '-'):
+        if (commander.from_reply_id and commander.text.lower() in user_datasource.remove_reputation_words.split()):
 
             if (commander.from_reply_id != commander.from_id):
                 user_datasource.remove_reputation(commander.from_reply_id)
@@ -89,11 +90,15 @@ class TaskManager:
 
     def process_command(self, commander: Commander):
 
+        # Обновляем время последнего сообщения у пользователя и обновляем счетчик сообщений
+        user_datasource.update_user_messages(commander.from_id)
+
         text = None
         attachment = None
         is_user_admin = False
         is_user_editor = False
         is_user_moderator = False
+        send_message_params = { 'disable_mentions': 1 }
 
         user = user_datasource.findbypk(commander.from_id)
 
@@ -136,7 +141,7 @@ class TaskManager:
      
                 attachment = commander.get_photos_links or ''
                 print('attachment', attachment)
-                self.create_or_update_content(key, command_id, commander.data, attachment)
+                self.__create_or_update_content(key, command_id, commander.data, attachment)
 
                 text = command.get('text')
                 attachment = command.get('attachment')
@@ -206,10 +211,10 @@ class TaskManager:
                         update_options = {}
  
                         if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_command')):
-                            self.update_command(update_command.get('id'), text, attachment)
+                            self.__update_command(update_command.get('id'), text, attachment)
 
                         if (update_command.get('action_type') == command_datasource.ACTION_TYPES.get('get_content')):
-                            self.create_or_update_content(content_key, update_command.get('id'), text, attachment)
+                            self.__create_or_update_content(content_key, update_command.get('id'), text, attachment)
 
                         text = command.get('success')
                     except:
@@ -316,22 +321,31 @@ class TaskManager:
                 else:
                     text = command.get('text')
 
+            if (command.get('action_type') == CommandType.USER_STATS.value):
+                members = self.__bot_messanger.chat_members(commander.peer_id)
+                text = user_datasource.get_user_stats(members)
+                
+                
             if (command.get('action_type') == 0):
                 return
 
         if (text or attachment):
             self.__bot_messanger.send_message(
-                commander.peer_id, text, attachment)
+                commander.peer_id, text, attachment, send_message_params)
         else:
             print('[WARNING] Attempt to send empty text or attachment')
 
-    def create_or_update_content(self, key, command_id, text, attachment) -> None:
+
+    def __send_message(self, peer_id, text, attachment, params):
+          self.__bot_messanger.send_message(peer_id, text, attachment, params)
+
+    def __create_or_update_content(self, key, command_id, text, attachment) -> None:
     
         exist = content_datasource.find_by_command_id(key, command_id)
      
         if (exist):
             where_options = [{'field': 'key', 'value': key }, {'field': 'command_id', 'value': command_id }]
-            update_options = { 'updated_at': f'{datetime.datetime.now()}'.split('.')[0]}
+            update_options = { 'updated_at': current_datetime() }
 
             if (text):
                 update_options['text'] = text
@@ -342,7 +356,7 @@ class TaskManager:
         else: 
             content_datasource.create_from_key(key, command_id, text, attachment)
 
-    def update_command(self, command_id, text, attachment) -> None:
+    def __update_command(self, command_id, text, attachment) -> None:
         where_options = [{'field': 'id', 'value': command_id }]
         update_options = {}
 

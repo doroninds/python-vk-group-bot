@@ -10,11 +10,11 @@ class VkBotMessanger:
         data = self.__vk_api.method('users.get', params)
         return data[0]
 
-    def send_message(self, peer_id, text=None, attachment=None) -> None:
+    def send_message(self, peer_id, text=None, attachment=None, params = {}) -> None:
 
         try:
             message = {'peer_id': peer_id, 'random_id': 0,
-                       'message': text, 'attachment': attachment}
+                       'message': text, 'attachment': attachment, **params}
 
             self.__vk_api.method('messages.send', message)
 
@@ -35,7 +35,12 @@ class VkBotMessanger:
         try:
             data = self.__vk_api.method(
                 'messages.getConversationMembers', {'peer_id': peer_id})
-            return data
+            
+            userIdx = []
+            for item in data['items']:
+                userIdx.append(item['member_id'])
+
+            return userIdx
 
         except Exception as e:
             print('[Exception] VkBotMessanger.send_message', e)
