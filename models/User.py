@@ -79,3 +79,20 @@ class UserModel(Base):
 
        
         return text
+
+    def get_silent_users(self, memberIdx):
+        rows = self.findall([{ 'field': 'total_message', 'value': 57 }])
+
+        text = 'Молчуны беседы:\n'
+
+        stat = ''
+        rowNum = 1
+        for row in rows:
+            if (row.get('user_id') in memberIdx):
+                stat += f"{rowNum}. {row.get('nickname') or row.get('username')}: Молчит с {row.get('created_at')}\n"
+                rowNum += 1
+
+        if (stat):
+            return text + stat
+
+        return None

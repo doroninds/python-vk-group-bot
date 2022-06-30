@@ -23,7 +23,7 @@ class CommandType(enum.Enum):
     REMOVE_REWARD = 15
     REWARDS = 16
     USER_STATS = 17
-
+    SILENT_USERS = 18
 class CommandModel(Base):
 
     ACTION_TYPES = {'get_command': 1, 'find_commands': 2,

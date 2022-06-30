@@ -325,7 +325,14 @@ class TaskManager:
                 members = self.__bot_messanger.chat_members(commander.peer_id)
                 text = user_datasource.get_user_stats(members)
                 
-                
+            if (command.get('action_type') == CommandType.SILENT_USERS.value):
+                members = self.__bot_messanger.chat_members(commander.peer_id)
+                stat = user_datasource.get_silent_users(members)
+                if (stat):
+                    text = stat
+                else:
+                    text = command.get('text')
+                               
             if (command.get('action_type') == 0):
                 return
 
