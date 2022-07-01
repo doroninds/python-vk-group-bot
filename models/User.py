@@ -60,8 +60,7 @@ class UserModel(Base):
 
 
     def update_user_messages(self, user_id):
-        self.update([{'field': 'user_id', 'value': user_id }], {'last_message': current_datetime()  })
-        SQL = f'UPDATE {self.__table_name} SET total_message = total_message + 1 WHERE user_id = {user_id}'
+        SQL = f'UPDATE {self.__table_name} SET total_message = total_message + 1, last_message = CURRENT_TIMESTAMP  WHERE user_id = {user_id};'
         Base.query(self, SQL)
 
 
