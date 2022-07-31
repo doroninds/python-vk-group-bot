@@ -6,9 +6,8 @@ from models.Content import ContentModel
 from models.Reward import RewardModel
 from models.User import UserModel
 from models.Warning import WarningModel
-from helpers import current_datetime, list_get
+from helpers import current_datetime, get_date_ago, get_number_from_string, list_get
 import traceback
-import datetime
 
 # models
 command_datasource = CommandModel()
@@ -84,7 +83,7 @@ class TaskManager:
         if (isHyperLink):
             self.__bot_messanger.send_message(
                 commander.peer_id, 'Ссылки запрещены. Пока прощай')
-            self.__bot_messanger.ban(commander.peer_id, commander.from_id)
+            self.__bot_messanger.removeChatUser(commander.peer_id, commander.from_id)
             self.__bot_messanger.delete_message(
                 commander.group_id, commander.peer_id, f'{commander.message_id}', f'{commander.conversation_message_id}')
 
@@ -332,7 +331,26 @@ class TaskManager:
                     text = stat
                 else:
                     text = command.get('text')
-                               
+
+            if (command.get('action_type') == CommandType.INACTIVE_USERS.value):
+                days = get_number_from_string(commander.value or '3')
+                
+                if (days < 3): days = 3
+
+                date = get_date_ago(days)
+               
+                members = self.__bot_messanger.chat_members(commander.peer_id)
+                data = user_datasource.show_inactive_users(members, date)
+            
+                if (data):
+                    text = data
+                    userIds = user_datasource.get_inactive_users(members, date)
+                    user_datasource.remove_users(userIds)
+                    self.__bot_messanger.batchRemoveChatUsers(commander.peer_id, userIds)
+
+                else:
+                    text = command.get('text')
+
             if (command.get('action_type') == 0):
                 return
 

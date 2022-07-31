@@ -109,7 +109,6 @@ class SqliteDatasource:
 
     def __set(self, set_options: dict):
         self.__query += f' SET'
-        print('set_options', set_options)
         set_count = len(set_options.items())
         i = 1
         for key, value in set_options.items():

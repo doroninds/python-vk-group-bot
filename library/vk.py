@@ -21,15 +21,23 @@ class VkBotMessanger:
         except Exception as e:
             print('[Exception] VkBotMessanger.send_message', e)
 
-    def ban(self, peer_id, user_id) -> None:
-        chat_id = peer_id - 2000000000
-        data = {'chat_id': chat_id, 'user_id': user_id}
-        self.__vk_api.method('messages.removeChatUser', data)
+    def removeChatUser(self, peer_id, user_id) -> None:
+        try:
+            chat_id = peer_id - 2000000000
+            data = {'chat_id': chat_id, 'user_id': user_id}
+            self.__vk_api.method('messages.removeChatUser', data)
+        except Exception as e:
+            print('[Exception] VkBotMessanger.removeChatUser', e)
 
     def delete_message(self, group_id, peer_id, messages_ids, cmids) -> None:
         data = {'group_id': group_id, 'delete_for_all': 1,
                 'peer_id': peer_id, 'cmids': cmids}
         self.__vk_api.method('messages.delete', data)
+
+
+    def batchRemoveChatUsers(self, peer_id, userIds) -> None:
+        for user_id in userIds:
+            self.removeChatUser(peer_id, user_id)
 
     def chat_members(self, peer_id) -> None:
         try:

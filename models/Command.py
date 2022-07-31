@@ -24,6 +24,8 @@ class CommandType(enum.Enum):
     REWARDS = 16
     USER_STATS = 17
     SILENT_USERS = 18
+    INACTIVE_USERS = 19
+
 class CommandModel(Base):
 
     ACTION_TYPES = {'get_command': 1, 'find_commands': 2,

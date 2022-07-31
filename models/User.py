@@ -3,9 +3,13 @@ from helpers import current_datetime
 from models.Base import Base
 
 
+USER_STATE = {
+    'ACTIVE': 'ACTIVE',
+    'REMOVED': 'REMOVED'
+}
 class UserModel(Base):
 
-    add_reputation_words = '+ жиза плюс 👍🏻'
+    add_reputation_words = '+ жиза плюс 👍🏻 респект'
     remove_reputation_words = '- минус осуждаю 👎🏻'
 
     __table_name = 'users'
@@ -17,6 +21,7 @@ class UserModel(Base):
     def __schema(self):
         return {
             'user_id': Base.schema_type(type=int, nullable=False),
+            'state': Base.schema_type(type=str, nullable=False),
             'username': Base.schema_type(str),
             'group_id': Base.schema_type(int),
             'level': Base.schema_type(type=int, default_value=0),
@@ -65,7 +70,7 @@ class UserModel(Base):
 
 
     def get_user_stats(self, memberIdx):
-        rows = self.findall(None, ['total_message', 'DESC'])
+        rows = self.findall([{ 'field': 'state', 'value': USER_STATE['ACTIVE'] }], ['total_message', 'DESC'])
 
         text = 'Статистика беседы (кол-во сообщений):\n'
 
@@ -80,7 +85,7 @@ class UserModel(Base):
         return text
 
     def get_silent_users(self, memberIdx):
-        rows = self.findall([{ 'field': 'total_message', 'value': 57 }])
+        rows = self.findall([{ 'field': 'total_message', 'value': 0 }, { 'field': 'state', 'value': USER_STATE['ACTIVE'] }])
 
         text = 'Молчуны беседы:\n'
 
@@ -94,4 +99,42 @@ class UserModel(Base):
         if (stat):
             return text + stat
 
-        return None
+        return stat
+
+    def get_inactive_users(self, memberIdx, from_last_message):
+        rows = self.findall([{ 'field': 'state', 'value': USER_STATE['ACTIVE'] }, { 'field': 'last_message', 'value': from_last_message, 'operator': '<' }])
+
+        userIds = []
+  
+        for row in rows:
+            if (row.get('user_id') in memberIdx):
+               userIds.append(row.get('user_id'))
+
+        return userIds
+
+    def show_inactive_users(self, memberIdx, from_last_message):
+        rows = self.findall([{ 'field': 'state', 'value': USER_STATE['ACTIVE'] }, { 'field': 'last_message', 'value': from_last_message, 'operator': '<' }])
+
+        text = f'Не актив беседы с {from_last_message} :\n'
+
+        stat = ''
+        rowNum = 1
+        for row in rows:
+            if (row.get('user_id') in memberIdx):
+                stat += f"{rowNum}. {row.get('nickname') or row.get('username')}: Не пишет с {row.get('last_message')}\n"
+                rowNum += 1
+
+        if (stat):
+            return text + stat
+
+        return stat
+
+    def remove_users(self, memberIdx):
+        user_id = ''
+        for memberId in memberIdx:
+            user_id += f'{memberId},'
+
+
+        SQL = f'UPDATE {self.__table_name} SET state = "{USER_STATE["REMOVED"]}" WHERE user_id IN ({user_id[:-1]});'
+        print('SQL', SQL)
+        Base.query(self, SQL)

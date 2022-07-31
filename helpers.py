@@ -1,4 +1,5 @@
-from datetime import datetime
+import datetime
+import re
 
 def day_of_week(week_day: str) -> int:
     week = {'понедельник': 0, 'вторник': 1, 'среда': 2,
@@ -25,3 +26,13 @@ def list_get(list, i):
 
 def current_datetime():
     return f'{datetime.now()}'.split('.')[0]
+
+
+def get_date_ago(days=3):
+    date = datetime.datetime.today() - datetime.timedelta(days)
+    print(date)
+    return date
+
+def get_number_from_string(str):
+    num = int(re.search(r'\d+', str).group())
+    return num
