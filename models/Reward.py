@@ -1,5 +1,5 @@
+from helpers import days_from_datetime
 from models.Base import Base
-
 
 class RewardModel(Base):
     __table_name = 'rewards'
@@ -21,7 +21,9 @@ class RewardModel(Base):
         text = f'🏆 Награды {nickname}:\n'
 
         for row in rows:
-            text += '🎗 %(name)s\n' % row
+          
+            days = days_from_datetime(row.get('created_at'))
+            text += '🎗 %(name)s' % row + f': {days} дня \n'
         return text
 
     def __schema(self):

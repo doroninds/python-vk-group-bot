@@ -25,7 +25,7 @@ def list_get(list, i):
 
 
 def current_datetime():
-    return f'{datetime.now()}'.split('.')[0]
+    return f'{datetime.datetime.now()}'.split('.')[0]
 
 
 def get_date_ago(days=3):
@@ -36,3 +36,10 @@ def get_date_ago(days=3):
 def get_number_from_string(str):
     num = int(re.search(r'\d+', str).group())
     return num
+
+
+def days_from_datetime(from_datetime):
+    from_date = datetime.datetime.strptime(from_datetime, "%Y-%m-%d %H:%M:%S")
+    current_date = datetime.datetime.strptime(current_datetime(), "%Y-%m-%d %H:%M:%S")
+    delta = datetime.date(current_date.year, current_date.month, current_date.day) - datetime.date(from_date.year, from_date.month, from_date.day)
+    return delta.days

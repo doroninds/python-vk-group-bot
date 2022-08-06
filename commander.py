@@ -98,6 +98,7 @@ class Commander:
         if (len(self.attachments)):
 
             for attachment in self.attachments:
+                print('attachment', attachment)
                 if (attachment['type'] == 'photo'):
                     photo = attachment['photo']
                     link = f"photo{photo['owner_id']}_{photo['id']}_{photo['access_key']}"
